@@ -138,20 +138,17 @@ class base(object):
             q[key] = value
 
     def set_DC(self, qubits: list):
+        q_ref = qubits[0]
+        self.start += q_ref['qa_start_delay']
         for q in qubits:
             q['experiment_length'] = self.start
             DCbiasPulse(q)
 
-    def set_readout(self, qubits: list, start=None):
-        if start is None:
-            start = self.start
+    def set_readout(self, qubits: list):
         for q in qubits:
             q['demod_freq'] = q['readout_freq']-q['readout_mw_fc']
-        q_ref = qubits[0]
-        start += q_ref['qa_start_delay']
         for q in qubits:
             q.r = readoutPulse(q)
-            q['experiment_length'] = start
             q['do_readout'] = True
         return
 

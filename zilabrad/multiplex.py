@@ -127,7 +127,7 @@ def s21_scan(sample, measure=0, stats=1024, freq=6.0*GHz, delay=0*ns, phase=0,
         mw_power = q['readout_mw_power']
 
     demod_freq = q['readout_freq']-q['readout_mw_fc']
-    SQC.increase_max_length(qubits, add_len=np.max(delay))
+    # SQC.increase_max_length(qubits, add_len=np.max(delay))
     # add max length of hd waveforms
 
     axes = [(freq, 'freq'), (bias, 'bias'), (zpa, 'zpa'), (power, 'power'),
@@ -140,8 +140,8 @@ def s21_scan(sample, measure=0, stats=1024, freq=6.0*GHz, delay=0*ns, phase=0,
         freq, bias, zpa, power, mw_power, delay, phase = para_list
         q['bias'] = bias
         q['readout_amp'] = power
-        q['readout_mw_fc'] = (freq - demod_freq)
         q['readout_freq'] = freq
+        SQC.set_Value(qubits, 'readout_mw_fc', freq - demod_freq)
 
         SQC.gate_init(qubits)
         SQC.add_Z_square(q, amp=zpa, length=q.piLen)
@@ -187,7 +187,7 @@ def spectroscopy(
         q['bias'] = bias
         q['piAmp'] = specAmp
         q['piLen'] = specLen
-
+        q['f10'] = freq
         SQC.set_Value(qubits, 'xy_mw_fc', freq-sb_freq)
         start = 0
 
@@ -226,17 +226,18 @@ def rabihigh(sample, measure=0, stats=1024, piamp=None, piLen=None, df=0*MHz,
     piLen = set_default(piLen, q['piLen'])
 
     axes = [(bias, 'bias'), (zpa, 'zpa'), (df, 'df'),
-            (piamp, 'piamp'), (piLen, 'piLen')]
+            (piamp, 'piAmp'), (piLen, 'piLen')]
     deps = dependents_1q()
     kw = {'stats': stats}
 
     xy_mw_fc = q['xy_mw_fc']
+    f10 = q['f10']
 
     def runSweeper(devices, para_list):
         bias, zpa, df, piamp, piLen = para_list
         q['bias'] = bias
-        q['piamp'] = piamp
-
+        q['piAmp'] = piamp
+        q['f10'] = f10 + df
         SQC.set_Value(qubits, 'xy_mw_fc', xy_mw_fc + df)
 
         SQC.gate_init(qubits)
@@ -266,8 +267,8 @@ def rabihigh21(
     q = qubits[measure]
     SQC.set_Value(qubits, 'stats', stats)
     zpa = set_default(zpa, q['zpa'])
-    piamp21 = set_default(piamp, q['piAmp21'])
-    piLen21 = set_default(piLen, q['piLen21'])
+    piamp21 = set_default(piamp21, q['piAmp21'])
+    piLen21 = set_default(piLen21, q['piLen21'])
 
     axes = [(zpa, 'zpa'), (df, 'df'),
             (piamp21, 'piamp21'), (piLen21, 'piLen21')]
