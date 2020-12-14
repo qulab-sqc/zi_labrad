@@ -11,7 +11,6 @@ from zilabrad.instrument.QubitContext import qubitContext
 from zilabrad.instrument import qubitServer
 from zilabrad.instrument import zurichHelper
 
-from zilabrad.instrument import waveforms
 from zilabrad.pyle.util import sweeptools
 from zilabrad.util import clear_singletonMany
 
@@ -31,7 +30,6 @@ __all__ = [
     # for developer
     'qubitContext',
     'qubitServer',
-    'waveforms',
     'zurichHelper',
 ]
 

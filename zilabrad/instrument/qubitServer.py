@@ -9,7 +9,7 @@ import logging
 import numpy as np
 import gc
 
-from zilabrad.instrument import waveforms
+from zilabrad import waveforms
 from zilabrad.instrument.zurichHelper import zurich_qa, zurich_hd
 from zilabrad.instrument.QubitContext import loadQubits
 from zilabrad.instrument.QubitContext import qubitContext
@@ -75,8 +75,8 @@ def RunAllExperiment(
     """
     def run(paras):
         # pass in all_paras to the function
-        all_paras = [Unit2SI(a) for a in paras[0]]
-        swept_paras = [Unit2num(a) for a in paras[1]]
+        all_paras = paras[0]
+        swept_paras = list(map(Unit2num, paras[1]))
         # 'None' is just the old devices arg which is not used now
         result = function(None, all_paras)
         if raw:
@@ -236,13 +236,14 @@ def setupDevices(qubits):
 
         # delay between zurich HD and QA
         qa.set_adc_trig_delay(
-            q_ref['bias_start']['s']+q_ref['experiment_length'])
+            Unit2SI(q_ref['bias_start'])+Unit2SI(q_ref['experiment_length'])
+        )
 
         # set demodulate frequency for qubits if you need readout the qubit
         f_read = []
         for qb in qubits:
             if qb.get('do_readout'):  # in _q.keys():
-                f_read += [qb.demod_freq]
+                f_read += [Unit2SI(qb.demod_freq)]
         if len(f_read) == 0:
             raise Exception('Must set one readout frequency at least')
         qa.set_qubit_frequency(f_read)
@@ -253,7 +254,8 @@ def setupDevices(qubits):
         # delay between zurich HD and QA
         # for example: in T1 measurement
         qa.set_adc_trig_delay(
-            q_ref['bias_start']['s']+q_ref['experiment_length'])
+            Unit2SI(q_ref['bias_start'])+Unit2SI(q_ref['experiment_length'])
+        )
     return
 
 
