@@ -9,7 +9,7 @@ import logging
 import os
 
 from zilabrad.util import singleton, singletonMany
-from zilabrad.instrument.waveforms import convertUnits
+from zilabrad.waveforms import convertUnits
 
 
 def create_logger(name, filename):
@@ -357,7 +357,7 @@ class zurich_qa(object):
         """
         logger.info(
             'Bulid [%s-AWG0] Sequencer (len=%r > %r)' %
-            (self.id, len(waveform[0]), self.waveform_length))
+            (self.id, wave_length, self.waveform_length))
         t0 = time.time()
         # create default zeros waveform
         awg_program = get_QA_program(
